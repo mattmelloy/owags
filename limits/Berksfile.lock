@@ -1,0 +1,11 @@
+DEPENDENCIES
+  limits
+    path: .
+    metadata: true
+  limits_test_cookbook
+    path: test/fixtures/cookbooks/limits_test_cookbook
+
+GRAPH
+  limits (1.0.0)
+  limits_test_cookbook (0.1.0)
+    limits (>= 0.0.0)
