@@ -15,6 +15,7 @@ depends          'windows'
 depends          'windows_firewall'
 depends          'ms_dotnet'
 depends          'nfs'
+depends          'aws'
 
 supports         'windows'
 supports         'ubuntu'
