@@ -1,0 +1,17 @@
+Lint/ParenthesesAsGroupedExpression:
+  Exclude:
+    - 'test/fixtures/cookbooks/aws_test/recipes/dynamodb_table_create.rb'
+    - 'test/fixtures/cookbooks/aws_test/recipes/dynamodb_table_update.rb'
+
+Metrics/BlockNesting:
+  Max: 7
+
+Metrics/ParameterLists:
+  Max: 8
+
+Style/GuardClause:
+  Exclude:
+    - 'providers/cloudformation_stack.rb'
+    - 'providers/ebs_volume.rb'
+    - 'providers/elastic_ip.rb'
+    - 'resources/cloudwatch.rb'
