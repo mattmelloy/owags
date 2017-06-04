@@ -17,7 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-use_inline_resources if defined?(use_inline_resources)
 
 include Chef::Mixin::ShellOut
 include Windows::Helper
@@ -43,7 +42,9 @@ action :set do
 
     # Check that the resource is not just trying to unset automatic managed, if it is do nothing more
     if (initial_size && maximum_size) || system_managed
-      create(pagefile) unless exists?(pagefile)
+      unless exists?(pagefile)
+        create(pagefile)
+      end
 
       if system_managed
         unless max_and_min_set?(pagefile, 0, 0)
@@ -78,14 +79,14 @@ private
 
 def exists?(pagefile)
   @exists ||= begin
-    cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" list /format:list", returns: [0])
+    cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" list /format:list", { returns: [0] })
     cmd.stderr.empty? && (cmd.stdout =~ /SettingID=#{get_setting_id(pagefile)}/i)
   end
 end
 
 def max_and_min_set?(pagefile, min, max)
   @max_and_min_set ||= begin
-    cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" list /format:list", returns: [0])
+    cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" list /format:list", { returns: [0] })
     cmd.stderr.empty? && (cmd.stdout =~ /InitialSize=#{min}/i) && (cmd.stdout =~ /MaximumSize=#{max}/i)
   end
 end
@@ -123,13 +124,13 @@ end
 
 def set_custom_size(pagefile, min, max)
   Chef::Log.debug("Setting #{pagefile} to InitialSize=#{min} & MaximumSize=#{max}")
-  cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" set InitialSize=#{min},MaximumSize=#{max}", returns: [0])
+  cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" set InitialSize=#{min},MaximumSize=#{max}", { returns: [0] })
   check_for_errors(cmd.stderr)
 end
 
 def set_system_managed(pagefile)
   Chef::Log.debug("Setting #{pagefile} to System Managed")
-  cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" set InitialSize=0,MaximumSize=0", returns: [0])
+  cmd = shell_out("#{wmic} pagefileset where SettingID=\"#{get_setting_id(pagefile)}\" set InitialSize=0,MaximumSize=0", { returns: [0] })
   check_for_errors(cmd.stderr)
 end
 
@@ -140,7 +141,9 @@ def get_setting_id(pagefile)
 end
 
 def check_for_errors(stderr)
-  Chef::Log.fatal(stderr) unless stderr.empty?
+  unless stderr.empty?
+    Chef::Log.fatal(stderr)
+  end
 end
 
 def wmic

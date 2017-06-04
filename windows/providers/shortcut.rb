@@ -17,7 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-use_inline_resources if defined?(use_inline_resources)
 
 def load_current_resource
   require 'win32ole'
@@ -44,13 +43,13 @@ def compare_shortcut
   end
 end
 
-action :create do
+def action_create
   if compare_shortcut
-    @link.TargetPath = @new_resource.target unless @new_resource.target.nil?
-    @link.Arguments = @new_resource.arguments unless @new_resource.arguments.nil?
-    @link.Description = @new_resource.description unless @new_resource.description.nil?
-    @link.WorkingDirectory = @new_resource.cwd unless @new_resource.cwd.nil?
-    @link.IconLocation = @new_resource.iconlocation unless @new_resource.iconlocation.nil?
+    @link.TargetPath = @new_resource.target if @new_resource.target != nil
+    @link.Arguments = @new_resource.arguments if @new_resource.arguments != nil
+    @link.Description = @new_resource.description if @new_resource.description != nil
+    @link.WorkingDirectory = @new_resource.cwd if @new_resource.cwd != nil
+    @link.IconLocation = @new_resource.iconlocation if @new_resource.iconlocation != nil
     # ignoring: WindowStyle, Hotkey
     @link.Save
     Chef::Log.info("Added #{@new_resource} shortcut")

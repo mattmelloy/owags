@@ -47,12 +47,8 @@ end
 
 windows_task 'create task delete_me' do
   name 'delete_me'
-  user 'NT AUTHORITY\SYSTEM'
-  run_level :highest
-  password 'ignored'
   action :create
   command 'dir'
-  notifies :create, 'file[c:/notifytest.txt]', :immediately
 end
 
 windows_task 'delete task delete_me' do
@@ -62,13 +58,6 @@ end
 
 windows_task 'task_for_system' do
   command 'dir'
-  run_level :highest
-  user 'vagrant'
-  password 'vagrant'
-  cwd ENV['TEMP']
-end
-
-file 'c:/notifytest.txt' do
-  content 'blah'
-  action :nothing
+  user 'system'
+  password 'ignored'
 end

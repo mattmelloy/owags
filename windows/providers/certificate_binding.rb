@@ -17,7 +17,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-use_inline_resources if defined?(use_inline_resources)
 
 # See https://msdn.microsoft.com/en-us/library/windows/desktop/cc307236%28v=vs.85%29.aspx for netsh info
 
@@ -31,7 +30,7 @@ def whyrun_supported?
 end
 
 action :create do
-  hash = @new_resource.name_kind == :subject ? getHashFromSubject : @new_resource.cert_name
+  hash = @new_resource.name_kind == :subject ? getHashFromSubject() : @new_resource.cert_name
 
   if @current_resource.exists
     needsChange = (hash.casecmp(@current_hash) != 0)
@@ -67,7 +66,6 @@ def load_current_resource
   @current_resource.name_kind(@new_resource.name_kind)
   @current_resource.address(@new_resource.address)
   @current_resource.port(@new_resource.port)
-  @current_resource.store_name(@new_resource.store_name)
 
   @command = locate_sysnative_cmd('netsh.exe')
   getCurrentHash
@@ -75,13 +73,13 @@ end
 
 private
 
-def getCurrentHash
+def getCurrentHash()
   cmd = shell_out("#{@command} http show sslcert ipport=#{@current_resource.address}:#{@current_resource.port}")
   Chef::Log.debug "netsh reports: #{cmd.stdout}"
 
   if cmd.exitstatus == 0
     m = cmd.stdout.scan(/Certificate Hash\s+:\s?([A-Fa-f0-9]{40})/)
-    if m.empty?
+    if m.length == 0
       raise "Failed to extract hash from command output #{cmd.stdout}"
     else
       @current_hash = m[0][0]
@@ -103,30 +101,30 @@ def setBinding(hash)
   shell_out!(cmd)
 end
 
-def deleteBinding
+def deleteBinding()
   shell_out!("#{@command} http delete sslcert ipport=#{@current_resource.address}:#{@current_resource.port}")
 end
 
 def checkHash(hash)
   p = powershell_out!("Test-Path \"cert:\\LocalMachine\\#{@current_resource.store_name}\\#{hash}\"")
 
-  unless p.stderr.empty? && p.stdout =~ /True/i
+  if !(p.stderr.empty? && p.stdout =~ /True/i)
     raise "A Cert with hash of #{hash} doesn't exist in keystore LocalMachine\\#{@current_resource.store_name}"
   end
-  nil
+  return
 end
 
-def getHashFromSubject
+def getHashFromSubject()
   # escape wildcard subject name (*.acme.com)
   subject = @current_resource.cert_name.sub(/\*/, '`*')
-  ps_script = "& { gci cert:\\localmachine\\#{@current_resource.store_name} | where { $_.subject -like '*#{subject}*' } | select -first 1 -expandproperty Thumbprint }"
+  ps_script = "& { gci cert:\\localmachine\\#{@current_resource.store_name} | where subject -like '*#{subject}*' | select -first 1 -expandproperty Thumbprint }"
 
   Chef::Log.debug "Running PS script #{ps_script}"
   p = powershell_out!(ps_script)
 
-  if !p.stderr.nil? && !p.stderr.empty?
+  if (!p.stderr.nil? && p.stderr.length > 0)
     raise "#{ps_script} failed with #{p.stderr}"
-  elsif p.stdout.nil? || p.stdout.empty?
+  elsif (p.stdout.nil? || p.stdout.length == 0)
     raise "Couldn't find thumbprint for subject #{@current_resource.cert_name}"
   end
 

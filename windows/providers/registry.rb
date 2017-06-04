@@ -21,7 +21,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-use_inline_resources if defined?(use_inline_resources)
 
 include Windows::RegistryHelper
 
@@ -40,7 +39,7 @@ action :force_modify do
   Timeout.timeout(120) do
     @new_resource.values.each do |value_name, value_data|
       i = 1
-      until i > 5
+      until i > 5 do
         desired_value_data = value_data
         current_value_data = get_value(@new_resource.key_name.dup, value_name.dup)
         if current_value_data.to_s == desired_value_data.to_s

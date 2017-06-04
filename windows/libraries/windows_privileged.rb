@@ -45,7 +45,9 @@ class Chef
 
       run(SE_BACKUP_NAME, SE_RESTORE_NAME) do
         rc = RegUnLoadKey(HKEY_USERS, name.to_s)
-        raise get_last_error(rc) if rc != ERROR_SUCCESS
+        if rc != ERROR_SUCCESS
+          raise get_last_error(rc)
+        end
       end
     end
 

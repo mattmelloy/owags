@@ -1,17 +1,17 @@
 require 'chef/resource/lwrp_base'
 require 'chef/provider/lwrp_base'
 
-require 'win32/registry' if RUBY_PLATFORM =~ /mswin|mingw32|windows/
+if RUBY_PLATFORM =~ /mswin|mingw32|windows/
+  require 'win32/registry'
+end
 
 require 'chef/mixin/shell_out'
 require 'chef/mixin/language'
 class Chef
   class Provider
-    class WindowsCookbookPackage < Chef::Provider::LWRPBase # ~FC058
+    class WindowsCookbookPackage < Chef::Provider::LWRPBase
       include Chef::Mixin::ShellOut
       include Windows::Helper
-
-      use_inline_resources if defined?(use_inline_resources)
 
       # the logic in all action methods mirror that of
       # the Chef::Provider::Package which will make
@@ -19,17 +19,19 @@ class Chef
 
       action :install do
         # If we specified a version, and it's not the current version, move to the specified version
-        if !@new_resource.version.nil? && @new_resource.version != @current_resource.version
+        if @new_resource.version != nil && @new_resource.version != @current_resource.version
           install_version = @new_resource.version
         # If it's not installed at all, install it
-        elsif @current_resource.version.nil?
+        elsif @current_resource.version == nil
           install_version = candidate_version
         end
 
         if install_version
           Chef::Log.info("Installing #{@new_resource} version #{install_version}")
           status = install_package(@new_resource.package_name, install_version)
-          new_resource.updated_by_last_action(true) if status
+          if status
+            new_resource.updated_by_last_action(true)
+          end
         end
       end
 
@@ -38,7 +40,9 @@ class Chef
           orig_version = @current_resource.version || 'uninstalled'
           Chef::Log.info("Upgrading #{@new_resource} version from #{orig_version} to #{candidate_version}")
           status = upgrade_package(@new_resource.package_name, candidate_version)
-          new_resource.updated_by_last_action(true) if status
+          if status
+            new_resource.updated_by_last_action(true)
+          end
         end
       end
 
@@ -47,6 +51,7 @@ class Chef
           Chef::Log.info("Removing #{@new_resource}")
           remove_package(@current_resource.package_name, @new_resource.version)
           new_resource.updated_by_last_action(true)
+        else
         end
       end
 
@@ -96,22 +101,22 @@ class Chef
         end
       end
 
-      def install_package(_name, _version)
+      def install_package(name, version)
         Chef::Log.debug("Processing #{@new_resource} as a #{installer_type} installer.")
         install_args = [cached_file(@new_resource.source, @new_resource.checksum), expand_options(unattended_installation_flags), expand_options(@new_resource.options)]
         Chef::Log.info('Starting installation...this could take awhile.')
         Chef::Log.debug "Install command: #{sprintf(install_command_template, *install_args)}"
-        shell_out!(sprintf(install_command_template, *install_args), timeout: @new_resource.timeout, returns: @new_resource.success_codes)
+        shell_out!(sprintf(install_command_template, *install_args), { timeout: @new_resource.timeout, returns: @new_resource.success_codes })
       end
 
-      def remove_package(_name, _version)
+      def remove_package(name, version)
         uninstall_string = installed_packages[@new_resource.package_name][:uninstall_string]
         Chef::Log.info("Registry provided uninstall string for #{@new_resource} is '#{uninstall_string}'")
         uninstall_command = begin
           if uninstall_string =~ /msiexec/i
             "#{uninstall_string} /qn"
           else
-            uninstall_string.delete!('"')
+            uninstall_string.gsub!('"', '')
             "start \"\" /wait /d\"#{::File.dirname(uninstall_string)}\" #{::File.basename(uninstall_string)}#{expand_options(@new_resource.options)} /S & exit %%%%ERRORLEVEL%%%%"
           end
         end
@@ -145,6 +150,7 @@ class Chef
           '/verysilent /norestart'
         when :wise
           '/s'
+        else
         end
       end
 
@@ -158,7 +164,7 @@ class Chef
               :msi
             else
               # search the binary file for installer type
-              contents = ::Kernel.open(::File.expand_path(cached_file(@new_resource.source)), 'rb', &:read) # TODO: limit data read in
+              contents = ::Kernel.open(::File.expand_path(cached_file(@new_resource.source)), 'rb') {|io| io.read } # TODO limit data read in
               case contents
               when /inno/i # Inno Setup
                 :inno
@@ -203,27 +209,10 @@ class Chef
       attribute :timeout, kind_of: Integer, default: 600
       attribute :success_codes, kind_of: Array, default: [0, 42, 127]
 
-      if Gem::Version.new(Chef::VERSION) >= Gem::Version.new('12.6.0')
-        attribute :remote_file_attributes, kind_of: Hash
-        attribute :response_file, kind_of: String
-        attribute :response_file_variables, kind_of: Hash
-        alias_method :returns, :success_codes
-      end
-
       self.resource_name = 'windows_package'
       def initialize(*args)
         super
-        if Gem::Version.new(Chef::VERSION) >= Gem::Version.new('12.6.0')
-          @provider = Chef::Provider::Package::Windows
-        else
-          @provider = Chef::Provider::WindowsCookbookPackage
-        end
-
-        Chef::Log.warn <<-EOF
-Please use the package resource available in Chef Client 12.6.
-windows_package will be removed in the next major version release
-of the Windows cookbook.
-EOF
+        @provider = Chef::Provider::WindowsCookbookPackage
       end
     end
   end

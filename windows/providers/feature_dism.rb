@@ -17,45 +17,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-use_inline_resources if defined?(use_inline_resources)
 
 include Chef::Provider::WindowsFeature::Base
 include Chef::Mixin::ShellOut
 include Windows::Helper
 
-def install_feature(_name)
+def install_feature(name)
   addsource = @new_resource.source ? "/LimitAccess /Source:\"#{@new_resource.source}\"" : ''
   addall = @new_resource.all ? '/All' : ''
-  shell_out!("#{dism} /online /enable-feature /featurename:#{@new_resource.feature_name} /norestart #{addsource} #{addall}", returns: [0, 42, 127, 3010])
+  shell_out!("#{dism} /online /enable-feature /featurename:#{@new_resource.feature_name} /norestart #{addsource} #{addall}", { returns: [0, 42, 127, 3010] })
 end
 
-def remove_feature(_name)
-  shell_out!("#{dism} /online /disable-feature /featurename:#{@new_resource.feature_name} /norestart", returns: [0, 42, 127, 3010])
+def remove_feature(name)
+  shell_out!("#{dism} /online /disable-feature /featurename:#{@new_resource.feature_name} /norestart", { returns: [0, 42, 127, 3010] })
 end
 
-def delete_feature(_name)
+def delete_feature(name)
   if win_version.major_version >= 6 && win_version.minor_version >= 2
-    shell_out!("#{dism} /online /disable-feature /featurename:#{@new_resource.feature_name} /Remove /norestart", returns: [0, 42, 127, 3010])
+    shell_out!("#{dism} /online /disable-feature /featurename:#{@new_resource.feature_name} /Remove /norestart", { returns: [0, 42, 127, 3010] })
   else
-    raise Chef::Exceptions::UnsupportedAction, "#{self} :delete action not support on #{win_version.sku}"
+    raise Chef::Exceptions::UnsupportedAction, "#{self.to_s} :delete action not support on #{win_version.sku}"
   end
 end
 
 def installed?
   @installed ||= begin
-    # Win32_OptionalFeature wmi class is only available in Win7+ (NT >= 6.1), but is way faster than dism.exe
-    if win_version.major_version > 6 || (win_version.major_version == 6 && win_version.minor_version >= 1)
-      !execute_wmi_query("SELECT * FROM Win32_OptionalFeature WHERE Name='#{@new_resource.feature_name}' AND InstallState=1").nil?
-    else
-      cmd = shell_out("#{dism} /online /Get-Features", returns: [0, 42, 127])
-      cmd.stderr.empty? && (cmd.stdout =~ /^Feature Name : #{@new_resource.feature_name}.?$\n^State : Enabled.?$/i)
-    end
+    cmd = shell_out("#{dism} /online /Get-Features", { returns: [0, 42, 127] })
+    cmd.stderr.empty? && (cmd.stdout =~ /^Feature Name : #{@new_resource.feature_name}.?$\n^State : Enabled.?$/i)
   end
 end
 
 def available?
   @available ||= begin
-    cmd = shell_out("#{dism} /online /Get-Features", returns: [0, 42, 127])
+    cmd = shell_out("#{dism} /online /Get-Features", { returns: [0, 42, 127] })
     cmd.stderr.empty? && (cmd.stdout !~ /^Feature Name : #{@new_resource.feature_name}.?$\n^State : .* with payload removed.?$/i)
   end
 end

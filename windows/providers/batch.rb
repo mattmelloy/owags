@@ -32,14 +32,15 @@ action :run do
     # follow CHEF-2357 for more
     cwd = @new_resource.cwd ? "cd \"#{@new_resource.cwd}\" & " : ''
 
-    execute @new_resource.name do
-      action  :run
-      command "#{cwd}call \"#{script_file.path}\" #{@new_resource.flags}"
-      user    @new_resource.user unless @new_resource.user.nil?
-      group   @new_resource.group unless @new_resource.group.nil?
-      creates @new_resource.creates unless @new_resource.creates.nil?
-      returns @new_resource.returns unless @new_resource.returns.nil?
-    end
+    r = Chef::Resource::Execute.new(@new_resource.name, run_context)
+    r.user(@new_resource.user)
+    r.group(@new_resource.group)
+    r.command("#{cwd}call \"#{script_file.path}\" #{@new_resource.flags}")
+    r.creates(@new_resource.creates)
+    r.returns(@new_resource.returns)
+    r.run_action(:run)
+
+    @new_resource.updated_by_last_action(r.updated_by_last_action?)
   ensure
     unlink_script_file
   end
