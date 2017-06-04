@@ -16,14 +16,32 @@ powershell_script 'download_files' do
 	EOH
 end
 
+directory 'C:/ArcGIS/10.5' do
+  action :create
+end
 
 directory 'C:/ArcGIS/10.5/server' do
   action :create
 end
 
+<<<<<<< HEAD
 windows_zipfile 'C:/ArcGIS/10.5/server' do
   source "c:/ArcGIS/arcgis_server_105.zip"
   action :unzip
   not_if {::File.exists?('C:/ArcGIS/10.5/server/arcgis_server_105/setup.msi')}
 end
 
+=======
+powershell_script 'Unzip_files' do
+	code <<-EOH
+	$spath = "c:/ArcGIS/arcgis_server_105.zip"
+	$destination = "C:/ArcGIS/10.5/server"
+	Get-ChildItem $spath  -Recurse  | foreach-object  {
+		$archiveFile = $_.fullname | out-string -stream
+		$shellApplication = new-object -com shell.application
+		$zipPackage = $shellApplication.NameSpace($archiveFile)
+		$destinationFolder = $shellApplication.NameSpace($destination)
+		$destinationFolder.CopyHere($zipPackage.Items(), 16) }
+		EOH
+end
+>>>>>>> 6bd935741b09f05c93b7fc035dc6b0a025e2db19
