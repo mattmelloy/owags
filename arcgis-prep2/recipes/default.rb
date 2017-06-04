@@ -19,7 +19,15 @@ directory 'C:/ArcGIS/10.5/server' do
   action :create
 end
 
-windows_zipfile 'C:/ArcGIS/10.5/server' do
-  source "c:/ArcGIS/arcgis_server_105.zip"
-  action :unzip
+powershell_script 'Unzip_files' do
+	code <<-EOH
+	$spath = "c:/ArcGIS/arcgis_server_105.zip"
+	$destination = "C:/ArcGIS/10.5/server"
+	Get-ChildItem $spath  -Recurse  | foreach-object  {
+		$archiveFile = $_.fullname | out-string -stream
+		$shellApplication = new-object -com shell.application
+		$zipPackage = $shellApplication.NameSpace($archiveFile)
+		$destinationFolder = $shellApplication.NameSpace($destination)
+		$destinationFolder.CopyHere($zipPackage.Items(), 16) }
+		EOH
 end
