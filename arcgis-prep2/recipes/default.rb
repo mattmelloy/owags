@@ -27,5 +27,5 @@ end
 windows_zipfile 'C:/ArcGIS/10.5/server' do
   source "c:/ArcGIS/arcgis_server_105.zip"
   action :unzip
-  not_if {::File.exists?('C:/ArcGIS/10.5/server/setup.exe')}
+  not_if {::File.exists?("C:/ArcGIS/10.5/server/Setup.exe")}
 end
