@@ -1,6 +1,4 @@
-﻿Set-ExecutionPolicy RemoteSigned -Force
-Set-AWSCredentials -AccessKey AKIAJL4RQGWIRRNH6LVA -SecretKey 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 -StoreAs HMAS
-Initialize-AWSDefaults -StoredCredentials HMAS -Region AP-Southeast-2 
+﻿Initialize-AWSDefaults -StoredCredentials HMAS -Region AP-Southeast-2 
 
 $bucket = "esriau-231320508276"
 
