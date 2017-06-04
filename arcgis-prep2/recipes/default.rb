@@ -12,6 +12,7 @@ powershell_script 'download_files' do
 	Copy-S3Object -BucketName "esriau-231320508276" -Key "FILES/ARCGIS/hs.ecp" -LocalFile "c:/ArcGIS/arcgisserver105.ecp"
 	Copy-S3Object -BucketName "esriau-231320508276" -Key "FILES/PORTAL/WildcardEsriAuOnline14to19.pfx" -LocalFile "c:/ArcGIS/WildcardEsriAuOnline14to19.pfx"
 	EOH
+	not_if (Test-Path "c:/ArcGIS/arcgis_server_105.zip")
 end
 
 
