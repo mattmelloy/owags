@@ -1,11 +1,11 @@
 #
 # Author:: Doug MacEachern <dougm@vmware.com>
 # Author:: Paul Morton (<pmorton@biaprotect.com>)
-# Cookbook Name:: windows
+# Cookbook:: windows
 # Library:: windows_privileged
 #
-# Copyright:: 2010, VMware, Inc.
-# Copyright:: 2011, Business Intelligence Associates, Inc
+# Copyright:: 2010-2017, VMware, Inc.
+# Copyright:: 2011-2017, Business Intelligence Associates, Inc
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -45,9 +45,7 @@ class Chef
 
       run(SE_BACKUP_NAME, SE_RESTORE_NAME) do
         rc = RegUnLoadKey(HKEY_USERS, name.to_s)
-        if rc != ERROR_SUCCESS
-          raise get_last_error(rc)
-        end
+        raise get_last_error(rc) if rc != ERROR_SUCCESS
       end
     end
 

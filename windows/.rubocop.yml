@@ -1,31 +1,39 @@
-AllCops:
-  Exclude:
-    - vendor/**/*
-    - Guardfile
+# rubocop todo
 
-AlignParameters:
-  Enabled: false
-ClassLength:
-  Enabled: false
-CyclomaticComplexity:
-  Enabled: false
-Documentation:
-  Enabled: false
-Encoding:
-  Enabled: false
-Style/FileName:
-  Enabled: false
-LineLength:
-  Enabled: false
-MethodLength:
-  Enabled: false
-Metrics/AbcSize:
-  Enabled: false
-PerceivedComplexity:
-  Enabled: false
-SingleSpaceBeforeFirstArg:
-  Enabled: false
-Style/ClassAndModuleChildren:
-  Enabled: false
-Style/FileName:
-  Enabled: false
+Lint/HandleExceptions:
+  Exclude:
+    - 'libraries/registry_helper.rb'
+    - 'libraries/windows_helper.rb'
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - 'libraries/registry_helper.rb'
+
+Lint/UselessAssignment:
+  Exclude:
+    - 'libraries/registry_helper.rb'
+
+Metrics/BlockNesting:
+  Max: 5
+
+Style/AccessorMethodName:
+  Exclude:
+    - 'libraries/matchers.rb'
+    - 'libraries/version.rb'
+
+Style/ClassVars:
+  Exclude:
+    - 'libraries/registry_helper.rb'
+
+Style/GuardClause:
+  Exclude:
+    - 'libraries/registry_helper.rb'
+    - 'libraries/windows_privileged.rb'
+
+Style/IfInsideElse:
+  Exclude:
+    - 'libraries/powershell_helper.rb'
+
+Style/RegexpLiteral:
+  Exclude:
+    - 'resources/task.rb'

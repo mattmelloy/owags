@@ -1,9 +1,9 @@
 #
 # Author:: Seth Chisamore (<schisamo@chef.io>)
-# Cookbook Name:: windows
+# Cookbook:: windows
 # Library:: helper
 #
-# Copyright:: 2011-2015, Chef Software, Inc.
+# Copyright:: 2011-2017, Chef Software, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,20 +40,14 @@ module Powershell
     end
 
     def powershell_version
-      begin
-        cmd = shell_out("#{interpreter} -InputFormat none -Command \"& echo $PSVersionTable.psversion.major\"")
-        if cmd.stdout.empty? # PowerShell 1.0 doesn't have a $PSVersionTable
-          1
-        else
-          if cmd.stdout =~ /^(\d+)/
-            $1.to_i
-          else
-            nil
-          end
-        end
-      rescue Errno::ENOENT
-        nil
+      cmd = shell_out("#{interpreter} -InputFormat none -Command \"& echo $PSVersionTable.psversion.major\"")
+      if cmd.stdout.empty? # PowerShell 1.0 doesn't have a $PSVersionTable
+        1
+      else
+        Regexp.last_match(1).to_i if cmd.stdout =~ /^(\d+)/
       end
+    rescue Errno::ENOENT
+      nil
     end
   end
 end
