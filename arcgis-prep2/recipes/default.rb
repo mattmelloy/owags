@@ -14,6 +14,9 @@ powershell_script 'download_files' do
 	EOH
 end
 
+directory 'C:/ArcGIS/10.5' do
+  action :create
+end
 
 directory 'C:/ArcGIS/10.5/server' do
   action :create
