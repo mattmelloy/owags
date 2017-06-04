@@ -16,7 +16,7 @@ powershell_script 'download_files' do
 end
 
 
-windows_zipfile "C:/ArcGIS/10.5/server" do
+windows_zipfile 'C:/ArcGIS/10.5/server' do
   source "c:/ArcGIS/arcgis_server_105.zip"
   action :unzip
 end
