@@ -1,34 +1,31 @@
 #
-# Cookbook Name:: ms_dotnet35
-# Recipe:: default
+# Cookbook Name:: ms_dotnet
+# Recipe:: ms_dotnet3
+# Author:: Baptiste Courtois (<b.courtois@criteo.com>)
 #
-# Copyright 2012, Webtrends, Inc.
+# Copyright (C) 2015-2016, Criteo.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+return unless platform? 'windows'
 
-# Install .NET 3.5 Feature if we don't find part of the package already installed
+v3_info = node['ms_dotnet']['v3']
 
-if platform?('windows')
-  include_recipe 'ms_dotnet'
-  if win_version.windows_server_2012? || win_version.windows_server_2012_r2? || win_version.windows_server_2008? || win_version.windows_server_2008_r2? || win_version.windows_7? || win_version.windows_vista?
-    windows_feature 'NetFx3' do
-      action :install
-      all node['ms_dotnet']['v3']['enable_all_features']
-      not_if { File.exists?('C:/Windows/Microsoft.NET/Framework/v3.5') }
-    end
-  elsif win_version.windows_server_2003_r2? || win_version.windows_server_2003? || win_version.windows_xp?
-    Chef::Log.warn('The Microsoft .NET Framework 3.5 Chef recipe currently only supports Windows Vista, 7, 2008, and 2008 R2.')
-  end
-else
-  Chef::Log.warn('Microsoft Framework .NET 3.5 can only be installed on the Windows platform.')
+ms_dotnet_framework v3_info['version'] do
+  timeout           node['ms_dotnet']['timeout']
+  include_patches   v3_info['include_patches']
+  feature_source    v3_info['feature_source'] unless v3_info['feature_source'].nil?
+  perform_reboot    v3_info['perform_reboot']
+  package_sources   v3_info['package_sources']
+  require_support   v3_info['require_support']
 end

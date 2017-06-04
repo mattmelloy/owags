@@ -1,9 +1,9 @@
 #
 # Cookbook Name:: ms_dotnet
 # Recipe:: ms_dotnet2
-# Author:: Julian C. Dunn (<jdunn@getchef.com>)
+# Author:: Baptiste Courtois (<b.courtois@criteo.com>)
 #
-# Copyright (C) 2014 Chef Software, Inc.
+# Copyright (C) 2015-2016, Criteo.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,52 +17,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+return unless platform? 'windows'
 
-case node['platform']
-when 'windows'
+v2_info = node['ms_dotnet']['v2']
 
-  require 'chef/win32/version'
-  windows_version = Chef::ReservedNames::Win32::Version.new
-
-  include_recipe 'ms_dotnet'
-  if windows_version.core?
-    # Windows Server 2008 R2 Core does not come with .NET or Powershell 2.0 enabled
-    include_recipe 'ms_dotnet'
-    windows_feature 'NetFx2-ServerCore' do
-      action :install
-    end
-    windows_feature 'NetFx2-ServerCore-WOW64' do
-      action :install
-      only_if { node['kernel']['machine'] == 'x86_64' }
-    end
-  elsif windows_version.windows_server_2008? || windows_version.windows_server_2003_r2? ||
-    windows_version.windows_server_2003? || windows_version.windows_xp?
-
-    if windows_version.windows_server_2008?
-      # Windows PowerShell 2.0 requires version 2.0 of the common language runtime (CLR).
-      # CLR 2.0 is included with the Microsoft .NET Framework versions 2.0, 3.0, or 3.5 with Service Pack 1.
-      windows_feature 'NET-Framework-Core' do
-        action :install
-      end
-    else
-      # XP, 2003 and 2003R2 don't have DISM or servermanagercmd, so download .NET 2.0 manually
-      windows_package node['ms_dotnet']['v2']['name'] do
-        source node['ms_dotnet']['v2']['url']
-        checksum node['ms_dotnet']['v2']['checksum']
-        installer_type :custom
-        options '/quiet /norestart'
-        success_codes [0, 3010]
-        timeout node['ms_dotnet']['timeout']
-        action :install
-      end
-    end
-  else
-    log '.NET Framework 2.0 is already enabled on this version of Windows' do
-      level :warn
-    end
-  end
-else
-  log '.NET Framework 2.0 cannot be installed on platforms other than Windows' do
-    level :warn
-  end
+ms_dotnet_framework v2_info['version'] do
+  timeout           node['ms_dotnet']['timeout']
+  include_patches   v2_info['include_patches']
+  feature_source    v2_info['feature_source'] unless v2_info['feature_source'].nil?
+  perform_reboot    v2_info['perform_reboot']
+  package_sources   v2_info['package_sources']
+  require_support   v2_info['require_support']
 end
