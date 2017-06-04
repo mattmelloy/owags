@@ -1,5 +1,4 @@
-﻿Initialize-AWSDefaults -StoredCredentials HMAS -Region AP-Southeast-2 
-
+﻿
 $bucket = "esriau-231320508276"
 
 Copy-S3Object -BucketName $bucket -Key "SETUP/105/arcgis_datastore_105.zip" -LocalFile "c:\ArcGIS\arcgis_datastore_105.zip"
