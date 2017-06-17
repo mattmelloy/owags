@@ -1,6 +1,6 @@
 $global:progressPreference = 'SilentlyContinue'
 
-describe 'test::path' {
+describe 'minimal::path' {
   context 'windows_path' {
     $SystemVariables  = get-itemproperty 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment'
     $UserVariables = get-itemproperty 'HKCU:\Environment'
@@ -11,12 +11,8 @@ describe 'test::path' {
       ($Paths -contains 'C:\path_test_path') | should be $true
     }
 
-    it "'c:\path_test_with_forward_slashes' was added to the path" {
-      ($Paths -contains 'C:\path_test_with_forward_slashes') | should be $true
-    }
-
-    it "'C:\path_test_path' was added to the path" {
-      ($Paths -contains 'C:\path_test_path') | should be $true
+    it "'C:\path_test_another_path' was added to the path" {
+      ($Paths -contains 'C:\path_test_another_path') | should be $true
     }
 
     it 'Child processes and shellouts have an updated path' {

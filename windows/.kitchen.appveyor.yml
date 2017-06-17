@@ -9,7 +9,6 @@ driver:
 
 provisioner:
   name: chef_zero
-  deprecations_as_errors: true
 
 platforms:
   - name: windows-2012R2
@@ -20,22 +19,30 @@ verifier:
 suites:
   - name: tasks
     run_list:
-      - recipe[test::tasks]
+      - recipe[windows::default]
+      - recipe[minimal::tasks]
   - name: path
     run_list:
-      - recipe[test::path]
+      - recipe[windows::default]
+      - recipe[minimal::path]
   - name: certificate
     run_list:
-      - recipe[test::certificate]
+      - recipe[windows::default]
+      - recipe[minimal::certificate]
+  - name: package
+    run_list:
+      - recipe[windows::default]
+      - recipe[minimal::package]
   - name: feature
     run_list:
-      - recipe[test::feature]
+      - recipe[windows::default]
+      - recipe[minimal::feature]
   - name: http_acl
     run_list:
-      - recipe[test::http_acl]
+      - recipe[windows::default]
+      - recipe[minimal::http_acl]
+
   - name: font
     run_list:
-      - recipe[test::font]
-  - name: pagefile
-    run_list:
-      - recipe[test::pagefile]
+      - recipe[windows::default]
+      - recipe[minimal::font]

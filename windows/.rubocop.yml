@@ -1,39 +1,80 @@
-# rubocop todo
-
-Lint/HandleExceptions:
+AllCops:
   Exclude:
-    - 'libraries/registry_helper.rb'
-    - 'libraries/windows_helper.rb'
+    - vendor/**/*
+    - Guardfile
 
-Lint/ShadowingOuterLocalVariable:
-  Exclude:
-    - 'libraries/registry_helper.rb'
+AlignParameters:
+  Enabled: false
+ClassLength:
+  Enabled: false
+CyclomaticComplexity:
+  Enabled: false
+Documentation:
+  Enabled: false
+Encoding:
+  Enabled: false
+Style/FileName:
+  Enabled: false
+LineLength:
+  Enabled: false
+MethodLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/ModuleLength:
+  Enabled: false
+PerceivedComplexity:
+  Enabled: false
+SpaceBeforeFirstArg:
+  Enabled: false
+Style/ClassAndModuleChildren:
+  Enabled: false
+Style/FileName:
+  Enabled: false
+Style/StringLiterals:
+  Enabled: false
 
-Lint/UselessAssignment:
-  Exclude:
-    - 'libraries/registry_helper.rb'
-
-Metrics/BlockNesting:
-  Max: 5
-
-Style/AccessorMethodName:
-  Exclude:
-    - 'libraries/matchers.rb'
-    - 'libraries/version.rb'
-
-Style/ClassVars:
-  Exclude:
-    - 'libraries/registry_helper.rb'
-
-Style/GuardClause:
-  Exclude:
-    - 'libraries/registry_helper.rb'
-    - 'libraries/windows_privileged.rb'
-
-Style/IfInsideElse:
-  Exclude:
-    - 'libraries/powershell_helper.rb'
+# todo: resolve these issues:
 
 Style/RegexpLiteral:
-  Exclude:
-    - 'resources/task.rb'
+  Enabled: false
+Style/GuardClause:
+  Enabled: false
+Lint/UselessAssignment:
+  Enabled: false
+Lint/RescueException:
+  Enabled: false
+Style/MultilineBlockChain:
+  Enabled: false
+Style/AccessorMethodName:
+  Enabled: false
+Metrics/BlockNesting:
+  Enabled: false
+Style/MethodName:
+  Enabled: false
+Style/VariableName:
+  Enabled: false
+Style/UnlessElse:
+  Enabled: false
+Style/VariableName:
+  Enabled: false
+Lint/HandleExceptions:
+  Enabled: false
+Lint/ShadowingOuterLocalVariable:
+  Enabled: false
+Style/FormatString:
+  Enabled: false
+Style/BracesAroundHashParameters:
+  Enabled: false
+Style/ClassVars:
+  Enabled: false
+Style/MultilineTernaryOperator:
+  Enabled: false
+Style/ConditionalAssignment:
+  Enabled: false
+Performance/Casecmp:
+  Enabled: false
+Style/Alias:
+  Enabled: false
+Style/IfInsideElse:
+  Enabled: false
